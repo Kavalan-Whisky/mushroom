@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍄 Mushroom - Ultimate Time Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <header class="bg-gray-800 border-b border-gray-700 p-4 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="text-2xl font-bold tracking-wider text-rose-400">🍄 MUSHROOM</h1>
+            <nav class="flex flex-wrap gap-2 justify-center">
+                <button onclick="switchTab('mushroom')" id="btn-mushroom" class="tab-btn px-4 py-2 rounded bg-indigo-600 font-medium transition">🍄 Mushroom Timer</button>
+                <button onclick="switchTab('stopwatch')" id="btn-stopwatch" class="tab-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 font-medium transition">Stopwatch</button>
+                <button onclick="switchTab('countdown')" id="btn-countdown" class="tab-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 font-medium transition">Countdown</button>
+                <button onclick="switchTab('pomodoro')" id="btn-pomodoro" class="tab-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 font-medium transition">Pomodoro</button>
+                <button onclick="switchTab('worldclock')" id="btn-worldclock" class="tab-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 font-medium transition">World Clock</button>
+                <button onclick="switchTab('counter')" id="btn-counter" class="tab-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 font-medium transition">Event Counter</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-6 flex-grow flex items-center justify-center">
+        
+        <div id="mushroom" class="tab-content active text-center w-full">
+            <h2 class="text-3xl font-semibold mb-2 text-rose-400">🍄 Multi-Mushroom Spore Timers</h2>
+            <p class="text-sm text-gray-400 mb-6">Create and run multiple independent timers simultaneously!</p>
+            
+            <div class="bg-gray-800 p-5 rounded-xl border border-rose-950 max-w-md mx-auto mb-8 shadow-lg">
+                <div class="grid grid-cols-2 gap-4 mb-4 font-mono">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs text-gray-400 uppercase mb-1 tracking-wider">Minutes</span>
+                        <input type="number" id="msh-mins-input" value="5" min="0" max="999" class="w-full p-2 bg-gray-900 border border-gray-700 rounded text-center text-xl font-bold focus:outline-none focus:border-rose-500 text-white transition">
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs text-gray-400 uppercase mb-1 tracking-wider">Seconds</span>
+                        <input type="number" id="msh-secs-input" value="0" min="0" max="59" class="w-full p-2 bg-gray-900 border border-gray-700 rounded text-center text-xl font-bold focus:outline-none focus:border-rose-500 text-white transition">
+                    </div>
+                </div>
+                <button onclick="addMushroomTimer()" class="w-full bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-2 tracking-wide">
+                    ➕ Spawn New Timer
+                </button>
+            </div>
+
+            <div id="mushroom-timers-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                </div>
+        </div>
+
+        <div id="stopwatch" class="tab-content text-center w-full">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-300">Stopwatch</h2>
+            <div class="text-6xl md:text-8xl font-mono tracking-widest text-white mb-8 bg-gray-800 p-8 rounded-xl shadow-inner border border-gray-700" id="sw-display">
+                00:00:00.<span class="text-3xl text-gray-400">00</span>
+            </div>
+            <div class="flex justify-center gap-4 mb-6">
+                <button onclick="startStopwatch()" id="sw-start" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition">Start</button>
+                <button onclick="lapStopwatch()" id="sw-lap" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold transition" disabled>Lap</button>
+                <button onclick="resetStopwatch()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 rounded-lg font-bold transition">Reset</button>
+            </div>
+            <div class="max-h-60 overflow-y-auto bg-gray-800 rounded-lg p-4 max-w-md mx-auto hidden border border-gray-700" id="sw-laps-container">
+                <table class="w-full text-left font-mono text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-600 text-gray-400">
+                            <th class="pb-2">Lap</th>
+                            <th class="pb-2 text-right">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sw-laps"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="countdown" class="tab-content text-center w-full">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-300">Countdown Timer</h2>
+            <div class="text-6xl md:text-8xl font-mono tracking-widest text-white mb-8 bg-gray-800 p-8 rounded-xl border border-gray-700" id="cd-display">
+                00:00:00
+            </div>
+            <div id="cd-inputs" class="flex justify-center gap-2 mb-6 font-mono">
+                <input type="number" id="cd-h" placeholder="HH" min="0" max="99" class="w-20 p-3 bg-gray-800 border border-gray-700 rounded text-center text-xl focus:outline-none focus:border-indigo-500">
+                <input type="number" id="cd-m" placeholder="MM" min="0" max="59" class="w-20 p-3 bg-gray-800 border border-gray-700 rounded text-center text-xl focus:outline-none focus:border-indigo-500">
+                <input type="number" id="cd-s" placeholder="SS" min="0" max="59" class="w-20 p-3 bg-gray-900 border border-gray-700 rounded text-center text-xl focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex justify-center gap-4">
+                <button onclick="startCountdown()" id="cd-start" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition">Set & Start</button>
+                <button onclick="resetCountdown()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 rounded-lg font-bold transition">Reset</button>
+            </div>
+        </div>
+
+        <div id="pomodoro" class="tab-content text-center w-full">
+            <h2 class="text-3xl font-semibold mb-2 text-gray-300" id="pomo-status">Work Session</h2>
+            <p class="text-sm text-gray-400 mb-6" id="pomo-cycle">Cycle #1</p>
+            <div class="text-6xl md:text-8xl font-mono tracking-widest text-white mb-8 bg-gray-800 p-8 rounded-xl border border-gray-700" id="pomo-display">
+                25:00
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                <button onclick="setPomoMode('work')" class="bg-amber-600 hover:bg-amber-500 text-sm px-3 py-1 rounded">Work (25m)</button>
+                <button onclick="setPomoMode('short')" class="bg-teal-600 hover:bg-teal-500 text-sm px-3 py-1 rounded">Short Break (5m)</button>
+                <button onclick="setPomoMode('long')" class="bg-indigo-600 hover:bg-indigo-500 text-sm px-3 py-1 rounded">Long Break (15m)</button>
+            </div>
+            <div class="flex justify-center gap-4">
+                <button onclick="togglePomo()" id="pomo-start" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition">Start</button>
+                <button onclick="resetPomo()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 rounded-lg font-bold transition">Reset</button>
+            </div>
+        </div>
+
+        <div id="worldclock" class="tab-content w-full max-w-2xl mx-auto">
+            <h2 class="text-3xl font-semibold text-center mb-8 text-gray-300">World Clock</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex justify-between items-center shadow-md">
+                    <div><p class="text-gray-400 text-xs uppercase tracking-wider">🏠 Local Time</p><p class="text-xl font-bold" id="wc-local-name">Your Location</p></div>
+                    <div class="text-2xl font-mono font-bold text-indigo-400" id="clock-local">00:00:00</div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex justify-between items-center shadow-md">
+                    <div><p class="text-gray-400 text-xs uppercase tracking-wider">🇬🇧 London</p><p class="text-xl font-bold">GMT/BST</p></div>
+                    <div class="text-2xl font-mono font-bold text-white" id="clock-london">00:00:00</div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex justify-between items-center shadow-md">
+                    <div><p class="text-gray-400 text-xs uppercase tracking-wider">🇺🇸 New York</p><p class="text-xl font-bold">EST/EDT</p></div>
+                    <div class="text-2xl font-mono font-bold text-white" id="clock-ny">00:00:00</div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 flex justify-between items-center shadow-md">
+                    <div><p class="text-gray-400 text-xs uppercase tracking-wider">🇯🇵 Tokyo</p><p class="text-xl font-bold">JST</p></div>
+                    <div class="text-2xl font-mono font-bold text-white" id="clock-tokyo">00:00:00</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="counter" class="tab-content text-center w-full max-w-xl mx-auto">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-300">Target Event Counter</h2>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-md mb-6">
+                <label class="block text-gray-400 text-sm mb-2 text-left">Pick a Date & Time:</label>
+                <input type="datetime-local" id="counter-date" class="w-full p-3 bg-gray-900 border border-gray-700 rounded text-white text-lg focus:outline-none focus:border-indigo-500 mb-4">
+                <button onclick="setEventCounter()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-lg font-bold transition">Track Event</button>
+            </div>
+            <div id="counter-result" class="hidden">
+                <p class="text-sm text-indigo-400 uppercase tracking-widest font-semibold mb-2" id="counter-status">Time Remaining</p>
+                <div class="grid grid-cols-4 gap-2 font-mono">
+                    <div class="bg-gray-800 p-3 rounded border border-gray-700"><span id="cnt-d" class="block text-3xl font-bold text-white">00</span><span class="text-xs text-gray-400">Days</span></div>
+                    <div class="bg-gray-800 p-3 rounded border border-gray-700"><span id="cnt-h" class="block text-3xl font-bold text-white">00</span><span class="text-xs text-gray-400">Hrs</span></div>
+                    <div class="bg-gray-800 p-3 rounded border border-gray-700"><span id="cnt-m" class="block text-3xl font-bold text-white">00</span><span class="text-xs text-gray-400">Mins</span></div>
+                    <div class="bg-gray-800 p-3 rounded border border-gray-700"><span id="cnt-s" class="block text-3xl font-bold text-white">00</span><span class="text-xs text-gray-400">Secs</span></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-900 text-center py-4 border-t border-gray-800 text-xs text-gray-500">
+        Mushroom Time Suite &bull; Built for GitHub Pages
+    </footer>
+
+    <script>
+        // --- NATIVE AUDIO BEEP SYSTEM ---
+        function beep(duration = 200, frequency = 440) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                oscillator.start();
+                setTimeout(() => { oscillator.stop(); audioCtx.close(); }, duration);
+            } catch (e) { console.log("Audio contextual playback blocked."); }
+        }
+
+        // --- TAB SWITCHER ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-indigo-600');
+                el.classList.add('bg-gray-700', 'hover:bg-gray-600');
+            });
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+            activeBtn.classList.add('bg-indigo-600');
+        }
+
+        // --- MULTI-MUSHROOM TIMER LOGIC ---
+        // FIXED: Added proper matching structural total and remaining limits to the starter object
+        let mushroomTimers = [
+            { id: 1, label: "Mushroom Spore #1", total: 300, remaining: 300, running: false }
+        ];
+        let mshMasterInterval = null;
+
+        function startMshMasterLoop() {
+            if (!mshMasterInterval) {
+                mshMasterInterval = setInterval(() => {
+                    let activeCount = 0;
+                    mushroomTimers.forEach(timer => {
+                        if (timer.running) {
+                            activeCount++;
+                            timer.remaining--;
+                            if (timer.remaining <= 0) {
+                                timer.remaining = 0;
+                                timer.running = false;
+                                
+                                beep(180, 523.25); 
+                                setTimeout(() => beep(180, 659.25), 180); 
+                                setTimeout(() => beep(350, 783.99), 360); 
+                            }
+                        }
+                    });
+                    renderMushroomTimers();
+                    if (activeCount === 0) {
+                        clearInterval(mshMasterInterval);
+                        mshMasterInterval = null;
+                    }
+                }, 1000);
+            }
+        }
+
+        function addMushroomTimer() {
+            let mins = parseInt(document.getElementById('msh-mins-input').value);
+            let secs = parseInt(document.getElementById('msh-secs-input').value);
+            
+            if (isNaN(mins) || mins < 0) mins = 0;
+            if (isNaN(secs) || secs < 0) secs = 0;
+            if (secs > 59) secs = 59;
+            
+            let totalSeconds = (mins * 60) + secs;
+            if (totalSeconds <= 0) return;
+
+            let newTimer = {
+                id: Date.now(),
+                label: `Mushroom Spore #${mushroomTimers.length + 1}`,
+                total: totalSeconds,
+                remaining: totalSeconds,
+                running: false
+            };
+
+            mushroomTimers.push(newTimer);
+            renderMushroomTimers();
+        }
+
+        function toggleMushroomTimer(id) {
+            let timer = mushroomTimers.find(t => t.id === id);
+            if (!timer || timer.remaining <= 0) return;
+            timer.running = !timer.running;
+            if (timer.running) {
+                startMshMasterLoop();
+            }
+            renderMushroomTimers();
+        }
+
+        function resetMushroomTimer(id) {
+            let timer = mushroomTimers.find(t => t.id === id);
+            if (!timer) return;
+            timer.running = false;
+            timer.remaining = timer.total;
+            renderMushroomTimers();
+        }
+
+        function deleteMushroomTimer(id) {
+            mushroomTimers = mushroomTimers.filter(t => t.id !== id);
+            renderMushroomTimers();
+        }
+
+        function formatMshTime(seconds) {
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function renderMushroomTimers() {
+            const listContainer = document.getElementById('mushroom-timers-list');
+            if (mushroomTimers.length === 0) {
+                listContainer.innerHTML = `<div class="col-span-full text-gray-500 py-8 text-center italic">No active timers running. Spawn one above! 🍄</div>`;
+                return;
+            }
+
+            listContainer.innerHTML = mushroomTimers.map(timer => {
+                const isRunning = timer.running;
+                const progressPercent = timer.total > 0 ? (timer.remaining / timer.total) * 100 : 0;
+                return `
+                    <div class="bg-gray-800 border ${isRunning ? 'border-rose-500/60 shadow-md shadow-rose-950/20' : 'border-gray-700'} rounded-xl p-5 text-center flex flex-col justify-between transition-all duration-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-rose-400 tracking-wide">${timer.label}</span>
+                            <button onclick="deleteMushroomTimer(${timer.id})" class="text-gray-500 hover:text-rose-400 text-xs font-bold transition">✕ Delete</button>
+                        </div>
+                        
+                        <div class="w-full bg-gray-900 h-1 rounded-full mb-4 overflow-hidden">
+                            <div class="bg-rose-500 h-full transition-all duration-1000 ease-linear" style="width: ${progressPercent}%"></div>
+                        </div>
+
+                        <div class="text-4xl md:text-5xl font-mono font-bold text-white tracking-widest my-2">
+                            ${formatMshTime(timer.remaining)}
+                        </div>
+
+                        <div class="flex justify-center gap-2 mt-3">
+                            <button onclick="toggleMushroomTimer(${timer.id})" class="${isRunning ? 'bg-amber-600 hover:bg-amber-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-xs px-4 py-2 rounded font-bold transition w-20">
+                                ${isRunning ? 'Pause' : 'Start'}
+                            </button>
+                            <button onclick="resetMushroomTimer(${timer.id})" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-4 py-2 rounded font-bold transition">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- STOPWATCH LOGIC ---
+        let swTimer = null;
+        let swStartTime = 0;
+        let swElapsedTime = 0;
+        let swLaps = [];
+
+        function startStopwatch() {
+            const btn = document.getElementById('sw-start');
+            const lapBtn = document.getElementById('sw-lap');
+            if (!swTimer) {
+                swStartTime = Date.now() - swElapsedTime;
+                swTimer = setInterval(updateStopwatch, 10);
+                btn.textContent = 'Pause';
+                btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-lg font-bold transition";
+                lapBtn.disabled = false;
+            } else {
+                clearInterval(swTimer);
+                swTimer = null;
+                btn.textContent = 'Start';
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition";
+                lapBtn.disabled = true;
+            }
+        }
+
+        function updateStopwatch() {
+            swElapsedTime = Date.now() - swStartTime;
+            document.getElementById('sw-display').innerHTML = formatTimeMS(swElapsedTime);
+        }
+
+        function lapStopwatch() {
+            swLaps.unshift(swElapsedTime);
+            const container = document.getElementById('sw-laps-container');
+            container.classList.remove('hidden');
+            const tbody = document.getElementById('sw-laps');
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-gray-700 text-gray-300";
+            tr.innerHTML = `<td class="py-2">Lap ${swLaps.length}</td><td class="py-2 text-right">${formatTimeMS(swElapsedTime)}</td>`;
+            tbody.insertBefore(tr, tbody.firstChild);
+        }
+
+        function resetStopwatch() {
+            clearInterval(swTimer);
+            swTimer = null;
+            swElapsedTime = 0;
+            swLaps = [];
+            document.getElementById('sw-display').innerHTML = '00:00:00.<span class="text-3xl text-gray-400">00</span>';
+            const btn = document.getElementById('sw-start');
+            btn.textContent = 'Start';
+            btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition";
+            document.getElementById('sw-lap').disabled = true;
+            document.getElementById('sw-laps').innerHTML = '';
+            document.getElementById('sw-laps-container').classList.add('hidden');
+        }
+
+        function formatTimeMS(ms) {
+            let hours = Math.floor(ms / 3600000);
+            let mins = Math.floor((ms % 3600000) / 60000);
+            let secs = Math.floor((ms % 60000) / 1000);
+            let centis = Math.floor((ms % 1000) / 10);
+            return `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}.<span class="text-3xl text-gray-400">${centis.toString().padStart(2,'0')}</span>`;
+        }
+
+        // --- COUNTDOWN LOGIC ---
+        let cdTimer = null;
+        let cdRemaining = 0;
+
+        function startCountdown() {
+            const btn = document.getElementById('cd-start');
+            if (!cdTimer) {
+                if (cdRemaining === 0) {
+                    const h = parseInt(document.getElementById('cd-h').value) || 0;
+                    const m = parseInt(document.getElementById('cd-m').value) || 0;
+                    const s = parseInt(document.getElementById('cd-s').value) || 0;
+                    cdRemaining = (h * 3600) + (m * 60) + s;
+                }
+                if (cdRemaining <= 0) return;
+                
+                document.getElementById('cd-inputs').classList.add('hidden');
+                cdTimer = setInterval(() => {
+                    cdRemaining--;
+                    updateCountdownDisplay();
+                    if (cdRemaining <= 0) {
+                        clearInterval(cdTimer);
+                        cdTimer = null;
+                        beep(600, 520);
+                        setTimeout(() => beep(600, 520), 800);
+                        resetCountdown();
+                    }
+                }, 1000);
+                btn.textContent = 'Pause';
+                btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-lg font-bold transition";
+            } else {
+                clearInterval(cdTimer);
+                cdTimer = null;
+                btn.textContent = 'Resume';
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition";
+            }
+        }
+
+        function updateCountdownDisplay() {
+            let h = Math.floor(cdRemaining / 3600);
+            let m = Math.floor((cdRemaining % 3600) / 60);
+            let s = cdRemaining % 60;
+            document.getElementById('cd-display').textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function resetCountdown() {
+            clearInterval(cdTimer);
+            cdTimer = null;
+            cdRemaining = 0;
+            document.getElementById('cd-display').textContent = '00:00:00';
+            document.getElementById('cd-inputs').classList.remove('hidden');
+            const btn = document.getElementById('cd-start');
+            btn.textContent = 'Set & Start';
+            btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold transition";
+        }
+
+        // --- POMODORO LOGIC ---
+        let pomoTimer = null;
+        let pomoRemaining = 1500; 
+        let pomoMode = 'work';
+        let pomoCycleCount = 1;
+
+        const pomoConfig = { work: 1500, short: 300, long: 900 };
+
+        function setPomoMode(mode) {
+            pomoMode = mode;
+            pomoRemaining = pomoConfig[mode];
+            document.getElementById('pomo-status').textContent = mode === 'work' ? 'Work Session' : mode === 'short' ? 'Short Break' : 'Long Break';
+            clearInterval(pomoTimer);
+            pomoTimer = null;
+            document.getElementById('pomo-start').textContent = 'Start';
+            updatePomoDisplay();
+        }
+
+        function togglePomo() {
+            const btn = document.getElementById('pomo-start');
+            if (!pomoTimer) {
+                pomoTimer = setInterval(() => {
+                    pomoRemaining--;
+                    updatePomoDisplay();
+                    if (pomoRemaining <= 0) {
+                        clearInterval(pomoTimer);
+                        pomoTimer = null;
+                        beep(400, 660);
+                        autoSwitchPomo();
+                    }
+                }, 1000);
+                btn.textContent = 'Pause';
+            } else {
+                clearInterval(pomoTimer);
+                pomoTimer = null;
+                btn.textContent = 'Resume';
+            }
+        }
+
+        function autoSwitchPomo() {
+            if (pomoMode === 'work') {
+                if (pomoCycleCount % 4 === 0) {
+                    setPomoMode('long');
+                } else {
+                    setPomoMode('short');
+                }
+            } else {
+                if (pomoMode === 'long' || pomoMode === 'short') {
+                    if (pomoMode === 'short') pomoCycleCount++;
+                    document.getElementById('pomo-cycle').textContent = `Cycle #${pomoCycleCount}`;
+                    setPomoMode('work');
+                }
+            }
+            togglePomo(); 
+        }
+
+        function updatePomoDisplay() {
+            let m = Math.floor(pomoRemaining / 60);
+            let s = pomoRemaining % 60;
+            document.getElementById('pomo-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function resetPomo() {
+            clearInterval(pomoTimer);
+            pomoTimer = null;
+            pomoRemaining = pomoConfig[pomoMode];
+            updatePomoDisplay();
+            document.getElementById('pomo-start').textContent = 'Start';
+        }
+
+        // --- WORLD CLOCK LOGIC ---
+        function updateWorldClocks() {
+            const now = new Date();
+            try {
+                document.getElementById('wc-local-name').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            } catch(e) {}
+
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            
+            document.getElementById('clock-local').textContent = now.toLocaleTimeString([], options);
+            document.getElementById('clock-london').textContent = new Date().toLocaleTimeString([], { ...options, timeZone: 'Europe/London' });
+            document.getElementById('clock-ny').textContent = new Date().toLocaleTimeString([], { ...options, timeZone: 'America/New_York' });
+            document.getElementById('clock-tokyo').textContent = new Date().toLocaleTimeString([], { ...options, timeZone: 'Asia/Tokyo' });
+        }
+        setInterval(updateWorldClocks, 1000);
+        updateWorldClocks();
+
+        // --- EVENT COUNTER LOGIC ---
+        let counterInterval = null;
+        let targetTimestamp = null;
+
+        function setEventCounter() {
+            const inputVal = document.getElementById('counter-date').value;
+            if (!inputVal) return;
+            
+            targetTimestamp = new Date(inputVal).getTime();
+            document.getElementById('counter-result').classList.remove('hidden');
+            
+            if(counterInterval) clearInterval(counterInterval);
+            
+            counterInterval = setInterval(updateEventCounter, 1000);
+            updateEventCounter();
+        }
+
+        function updateEventCounter() {
+            if (!targetTimestamp) return;
+            const now = Date.now();
+            let diff = targetTimestamp - now;
+            
+            const statusEl = document.getElementById('counter-status');
+            if (diff < 0) {
+                statusEl.textContent = "Time Elapsed Since Event";
+                diff = Math.abs(diff);
+            } else {
+                statusEl.textContent = "Time Remaining Until Event";
+            }
+            
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('cnt-d').textContent = d.toString().padStart(2, '0');
+            document.getElementById('cnt-h').textContent = h.toString().padStart(2, '0');
+            document.getElementById('cnt-m').textContent = m.toString().padStart(2, '0');
+            document.getElementById('cnt-s').textContent = s.toString().padStart(2, '0');
+        }
+
+        // --- INITIAL RENDER EXECUTION ---
+        renderMushroomTimers();
+    </script>
+</body>
+</html>
